@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image-Logger</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: #f0f0f0;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Image-Logger</h1>
+        <input type="text" id="webhookUrl" placeholder="Webhook URL">
+        <input type="text" id="imageUrl" placeholder="Image URL">
+        <button onclick="createLogger()">Create</button>
+        <div id="result" style="margin-top: 20px;"></div>
+    </div>
+
+    <script>
+        function createLogger() {
+            const webhookUrl = document.getElementById('webhookUrl').value;
+            const imageUrl = document.getElementById('imageUrl').value;
+
+            if (!webhookUrl || !imageUrl) {
+                document.getElementById('result').innerText = 'Please enter both URLs.';
+                return;
+            }
+
+            // Create a URL for the tracking page
+            const trackingPage = `
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Tracking Image</title>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            // Send a tracking request
+                            fetch('${webhookUrl}', { method: 'GET' })
+                                .then(response => response.text())
+                                .then(data => console.log('Tracking request sent:', data))
+                                .catch(error => console.error('Error sending tracking request:', error));
+
+                            // Display the image
+                            const img = new Image();
+                            img.src = '${imageUrl}';
+                            document.body.appendChild(img);
+                        });
+                    </script>
+                </head>
+                <body>
+                </body>
+                </html>
+            `;
+
+            // Display the tracking page content
+            document.getElementById('result').innerHTML = `
+                <h2>Tracking Page Created</h2>
+                <p>Copy and paste the following code into an HTML file and host it:</p>
+                <textarea rows="15" cols="50">${trackingPage}</textarea>
+            `;
+        }
+    </script>
+</body>
+</html>
